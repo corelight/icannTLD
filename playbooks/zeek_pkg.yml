@@ -1,0 +1,51 @@
+---
+- hosts: ubuntu2
+  gather_facts: yes
+  remote_user: james
+  become: yes
+
+  vars_files:
+    - ./sensor_vars.yml
+
+
+  tasks:
+
+# Make sure the Ansible Host has the Corelight-Client and it's dependencies.
+# Keeping these tasks here will also ensure the client is the latest version everytime it's used.
+  - name: Add additional packages, python3.x, pip3
+    apt:
+      pkg:
+      - python3-pip
+      update-cache: yes
+
+  - name: install Corelight Client
+    pip:
+      name: 
+        - corelight-client
+      executable: pip3
+
+  - name: install Zeek Pachage Manager
+    pip:
+      name: 
+        - zkg
+    register: zkg_install
+
+# Basic Zeek Configuration
+  - name: Zeek autoconfig
+    command: zkg   autoconfig
+    environment:
+      PATH: "{{ansible_user_dir}}/.zkg:{{ansible_env.PATH}}"
+    when: zkg_install.changed
+
+
+# zkg install <package>
+# zkg bundle <bundle_name.bundle>
+
+# Use the Corelight-Client to upload the bundle to the Sensor.
+# The Ansible "command" module is not idempotent.  It will execute each time it call even if nothing changed.
+# The "when" is added and tied to the "register" statement on the previous task that is idempotent.  This will
+# keep the task from executing if it nothing has changed.
+  # - name: Upload Zeek bundle to the sensors
+  #   command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro bundle upload --name "{{  }}"
+  #   with_items: "{{ sensor_information }}"
+  #   when: icann_list.changed

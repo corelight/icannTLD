@@ -1,0 +1,15 @@
+##Sensor Vars file##
+
+#Sensor Information
+sensor_information:
+- name: 'ap200'
+  address: '192.168.12.220'
+
+
+# The below credentials are included as examples.
+# Real usernames and passwords should be stored in a password vault
+# not in a var file.
+
+#Sensor Login Information
+sensor_username: 'admin'
+sensor_password: 'admin'
