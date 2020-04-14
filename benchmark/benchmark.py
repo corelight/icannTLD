@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+
+#Version 1 of benchmark.py will measure the duration of running the target script and output the test query and durations.
 import argparse
 import subprocess
 import time
@@ -16,6 +18,6 @@ def main():
             end = time.perf_counter()
             duration = end-start
             results.append(duration)
-        print(q, " ".join("{:0.2f}".format(d) for d in results))
+        print(q, " ".join("{:0.3f}".format(d) for d in results))
 if __name__ == "__main__":
     main()

@@ -1,3 +1,11 @@
+#main1_benchmark uses split_string1 to break the DNS query into two parts 
+#seperated by the first match of a period from the left.  It looks from LEFT TO RIGHT to
+#find a match in the ICANN TLD list.
+#
+#It also uses a tail loop within the FindTLD function to call itself.  Each time
+#it loops through the function, it removes the far left section of the query.
+
+
 module icannTLD;
 #use input framework to add a set with ICANN Domains
 type Idx: record {
@@ -37,26 +45,27 @@ function FindTLD(c: connection, query: string, dns_query: string, offset: count 
 function test_one(c: connection) {
     if ( c?$dns && c$dns?$query ) {
         if ( /.*(\.local)$/ in c$dns$query ) {
-            ;
+            info$eff_domain = "local";
         }
         else if ( /^[^\.]+$/ in c$dns$query ) {
-            ;
+            info$eff_domain = "local";
         }
         else if ( c$dns$query in icannTLD_set ) {
             c$dns$icann_tld = c$dns$query;
             c$dns$eff_domain = c$dns$query;
         }
         else {
-# test to determine if line 51 is still required without globals
-#            c$dns$eff_subdomain = "";
+            c$dns$eff_subdomain = "";
             FindTLD(c, c$dns$query, c$dns$query);
         }
     }
 }
 #added for testing
+export {
+	option iterations: int = 500000;
+	option test_query: string = "google.com";
+}
 redef exit_only_after_terminate=T;
-option iterations=500000;
-option test_query="google.com";
 event Input::end_of_data(name: string, source: string) {
 	#for benchmark testing only (to replace pcap)
 	local c: connection;
@@ -67,5 +76,7 @@ event Input::end_of_data(name: string, source: string) {
     while ( ++x < iterations ) {
         test_one(c);
     }
+	print c$dns$query, c$dns$icann_tld, c$dns$eff_domain, c$dns$eff_subdomain;
 	terminate();
+	exit(0);
 }
