@@ -1,0 +1,5 @@
+[package]
+description = A Zeek script using Input Framework to get ICANN TLD, effective domain, and effective subdomain of a DNS query.
+tags = domain, dns, tld, input
+script_dir = scripts
+version = 1.0.0
