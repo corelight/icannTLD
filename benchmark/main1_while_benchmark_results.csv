@@ -1,0 +1,10 @@
+# ./benchmark_v2.py main1_while_benchmark.zeek --iterations=1000000
+1.google.com,               com, google.com, 1              5.516   5.522   5.536
+google.com,                 com, google.com,                3.171   3.179   3.196
+1.google.com,               com, google.com, 1              5.555   5.523   5.555
+2.1.google.com,             com, google.com, 2.1            7.248   7.194   7.250
+3.2.1.google.com,           com, google.com, 3.2.1          8.932   9.187   8.984
+4.3.2.1.google.com,         com, google.com, 4.3.2.1        10.598  10.638  10.624
+5.4.3.2.1.google.com,       com, google.com, 5.4.3.2.1      12.371  12.304  12.311
+6.5.4.3.2.1.google.com,     com, google.com, 6.5.4.3.2.1    13.991  14.049  14.204
+7.6.5.4.3.2.1.google.com,   com, google.com, 7.6.5.4.3.2.1  15.659  15.629  15.645

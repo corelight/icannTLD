@@ -1,4 +1,4 @@
-#main3_benchmark is a library that returns icann_tld, eff_domain and eff_subdomain.
+#main2_library_benchmark is a library version of main2.  It returns icann_tld, eff_domain and eff_subdomain.
 #It uses split_string to break the DNS query into all of the parts 
 #seperated by a period.  Then it looks from RIGHT TO LEFT to find a match in the 
 #ICANN TLD list.

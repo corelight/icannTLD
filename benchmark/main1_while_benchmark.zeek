@@ -1,8 +1,10 @@
-#main2_benchmark uses split_string to break the DNS query into all of the parts 
-#seperated by a period.  Then it looks from RIGHT TO LEFT to find a match in the 
-#ICANN TLD list.
+#main1_benchmark uses split_string1 to break the DNS query into two parts 
+#seperated by the first match of a period from the left.  It looks from LEFT TO RIGHT to
+#find a match in the ICANN TLD list.
 #
-#It also uses a while loop within the FindTLD function.
+#It also uses a tail loop within the FindTLD function to call itself.  Each time
+#it loops through the function, it removes the far left section of the query.
+
 
 module icannTLD;
 #use input framework to add a set with ICANN Domains
@@ -20,25 +22,34 @@ redef record DNS::Info += {
 	eff_domain: string &log &optional;
 	icann_tld: string &log &optional;
 };
-
-function FindTLD(c: connection, query: string, dns_query: string) {
-	local query_parts = split_string(query, /\./);
-	local query_size = |query_parts|;
-	local idx: int = query_size-1;
-	local test_tld = query_parts[idx];
-	while (idx > 0  ) {
-		if (test_tld !in icannTLD_set)
-			break;
-		c$dns$icann_tld = test_tld;
-		c$dns$eff_domain = fmt("%s.%s", query_parts[idx-1], test_tld);
-		test_tld = fmt("%s.%s", query_parts[idx-1], test_tld);
-		--idx;
+function FindTLD(c: connection, query: string, dns_query: string, idx: count &default = 2) {
+	local pass: int = 1;
+	while (idx > 1 ) {
+		local test_tld = split_string1(query, /(\.)/);
+		idx = |test_tld|;
+		if (|test_tld| > 1) {
+			if (test_tld[1] in icannTLD_set) {
+				c$dns$icann_tld = test_tld[1];
+				if (pass == 1) {
+					c$dns$eff_domain = query;
+					return;
+				}
+				else {
+					c$dns$eff_subdomain = subst_string(dns_query, "." +c$dns$eff_domain, "");
+					return;
+				}
+			}
+			else {
+				c$dns$eff_domain = test_tld[1];
+				c$dns$eff_subdomain = test_tld[0];
+				query = test_tld[1];
+				++pass;
+			}
+		}
 	}
-	if(idx >= 0) {
-		 c$dns$eff_subdomain = join_string_vec(query_parts[0:idx],".");
-	}
+	return;
 }
-
+#renamed from 'event dns_end(c: connection, msg: dns_msg)' for testing
 function test_one(c: connection) {
     if ( c?$dns && c$dns?$query ) {
         if ( /.*(\.local)$/ in c$dns$query ) {
@@ -52,6 +63,7 @@ function test_one(c: connection) {
             c$dns$eff_domain = c$dns$query;
         }
         else {
+            c$dns$eff_subdomain = "";
             FindTLD(c, c$dns$query, c$dns$query);
         }
     }
@@ -59,7 +71,7 @@ function test_one(c: connection) {
 #added for testing
 export {
 	option iterations: int = 500000;
-	option test_query: string = "google.com";
+	option test_query: string = "www.google.com";
 }
 redef exit_only_after_terminate=T;
 event Input::end_of_data(name: string, source: string) {
