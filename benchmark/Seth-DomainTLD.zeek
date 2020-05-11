@@ -27,7 +27,32 @@ export {
 	## 
 	## Returns: The "effective domain" string.
 	global effective_domain: function(domain: string): string;
-	
+
+	## This function uses a built in list of "effective" TLDs pulled from 
+	## the list that Mozilla maintains to take any arbitrary domain and 
+	## find the "effective subdomain" (i.e. one component beyond the 
+	## "effective TLD").  For example, "x.y.z.google.co.uk" is turned
+	## into "z.google.co.uk".
+	##
+	## domain: The FQDN to find the effective domain within.
+	## 
+	## Returns: The "effective subdomain" string.
+	global effective_subdomain: function(domain: string): string;
+
+	type EffectiveNames: record {
+		tld: string &optional;
+		domain: string &optional;
+		subdomain: string &optional;
+	};
+
+	## Return a record with the full set of "tld", "domain", "subdomain" in
+	## one fuction call.
+	##
+	## domain: The FQDN to find the effective domain within.
+	## 
+	## Returns: An "EffectiveNames" record.
+	global effective_names: function(domain: string): EffectiveNames;
+
 	## This function can strip domain portions from domain names efficiently.
 	##
 	## domain: The domain to strip domain portions from.
@@ -45,7 +70,7 @@ const effective_tlds_4th_level: pattern = /DEFINED_IN_SEPARATE_FILE/ &redef;
 
 const effective_tld_pattern: pattern    = /DEFINED_IN_SEPARATE_FILE/ &redef;
 const effective_domain_pattern: pattern = /DEFINED_IN_SEPARATE_FILE/ &redef;
-
+@load ./tld-data
 # These are used to match the depth of domain components desired since
 # patterns can't (and probably shouldn't be) compiled dynamically).
 const tld_extraction_suffixes: table[count] of pattern = {
@@ -65,7 +90,9 @@ function zone_by_depth(domain: string, depth: count): string
 	local result = find_last(domain, tld_extraction_suffixes[depth]);
 	if ( result == "" )
 		return domain;
-	return result[1:];
+	
+	# return result[1:];
+	return result;
 	}
 
 function effective_tld(domain: string): string
@@ -92,12 +119,26 @@ function effective_domain(domain: string): string
 	return zone_by_depth(domain, depth);
 	}
 
-function effective_subdomain(test_query: string, eff_domain: string): string 
+function effective_subdomain(domain: string): string
 	{
-	if ( test_query == eff_domain )
-		return "";
-	return subst_string(test_query, "." +eff_domain, "");	
+	local depth=3;
+	if ( effective_tlds_4th_level in domain )
+		depth=6;
+	else if ( effective_tlds_3rd_level in domain )
+		depth=5;
+	else if ( effective_tlds_2nd_level in domain )
+		depth=4;
+	return zone_by_depth(domain, depth);
 	}
+
+
+function effective_names(domain: string): EffectiveNames
+	{
+	return EffectiveNames($tld = effective_tld(domain),
+	                      $domain = effective_domain(domain),
+	                      $subdomain = effective_subdomain(domain));
+	}
+
 
 #event bro_init()
 #	{
@@ -112,19 +153,21 @@ function effective_subdomain(test_query: string, eff_domain: string): string
 
 #added for benchmark testing
 export {
-	option iterations: int = 500000;
-	option test_query: string = "www.google.com";
+	option iterations: int = 1000000;
+	option test_query: string = "www.domain.com";
 }
 redef exit_only_after_terminate=T;
 event zeek_init() {
 	#for benchmark testing only (to replace pcap)
+	local info: EffectiveNames;
     local x = 0;
+	local start_time = current_time();
     while ( ++x < iterations ) {
-        local icann_tld = effective_tld(test_query);
-		local eff_domain = effective_domain(test_query);
-		local eff_subdomain = effective_subdomain(test_query, eff_domain);
+        info = effective_names(test_query);
     }
-    print test_query,  icann_tld,  eff_domain,  eff_subdomain;
+	local end_time = current_time();
+	print fmt("Time: %.6f", end_time - start_time);
+	print test_query, info;
 	terminate();
 	exit(0);
 }
