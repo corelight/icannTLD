@@ -1,0 +1,32 @@
+$ ./benchmark_v3.py set-to-regex.zeek --iterations 1000000
+hostname, 							local, 		local, 				,  				avg_script_time: 1.166  	avg_query_time: 0.711  	qps: 1,405,808.0
+hostname.local, 					local, 		local, 				,  				avg_script_time: 1.182  	avg_query_time: 0.723  	qps: 1,383,953.4
+com.co, 							com.co, 	com.co, 			,  				avg_script_time: 2.271  	avg_query_time: 1.814  	qps:   551,310.3
+1.domain.com, 						com, 		domain.com, 		1,  			avg_script_time: 3.562  	avg_query_time: 3.105  	qps:   322,072.3
+domain.com, 						com, 		domain.com, 		,  				avg_script_time: 3.091  	avg_query_time: 2.634  	qps:   379,628.7
+domain.us, 							us, 		domain.us, 			,  				avg_script_time: 3.029  	avg_query_time: 2.570  	qps:   389,108.9
+domain.mo.us, 						mo.us, 		domain.mo.us, 		,  				avg_script_time: 3.157  	avg_query_time: 2.699  	qps:   370,529.6
+domain.k12.mo.us, 					k12.mo.us, 	domain.k12.mo.us, 	,  				avg_script_time: 3.220  	avg_query_time: 2.766  	qps:   361,468.8
+1.domain.us, 						us, 		domain.us, 			1,  			avg_script_time: 3.545  	avg_query_time: 3.089  	qps:   323,765.3
+1.domain.mo.us, 					mo.us, 		domain.mo.us, 		1,  			avg_script_time: 3.693  	avg_query_time: 3.235  	qps:   309,077.5
+1.domain.k12.mo.us, 				k12.mo.us, 	domain.k12.mo.us, 	1,  			avg_script_time: 3.739  	avg_query_time: 3.282  	qps:   304,695.1
+2.1.domain.us, 						us, 		domain.us, 			2.1,  			avg_script_time: 3.586  	avg_query_time: 3.128  	qps:   319,733.7
+2.1.domain.mo.us, 					mo.us, 		domain.mo.us, 		2.1,  			avg_script_time: 3.817  	avg_query_time: 3.363  	qps:   297,360.4
+2.1.domain.k12.mo.us, 				k12.mo.us, 	domain.k12.mo.us, 	2.1,  			avg_script_time: 3.766  	avg_query_time: 3.302  	qps:   302,807.9
+3.2.1.domain.us, 					us, 		domain.us, 			3.2.1,  		avg_script_time: 3.638  	avg_query_time: 3.180  	qps:   314,445.8
+3.2.1.domain.mo.us, 				mo.us, 		domain.mo.us, 		3.2.1,  		avg_script_time: 3.835  	avg_query_time: 3.377  	qps:   296,090.3
+3.2.1.domain.k12.mo.us, 			k12.mo.us, 	domain.k12.mo.us, 	3.2.1,  		avg_script_time: 3.842  	avg_query_time: 3.385  	qps:   295,436.0
+4.3.2.1.domain.us, 					us, 		domain.us, 			4.3.2.1,  		avg_script_time: 3.674  	avg_query_time: 3.215  	qps:   310,998.5
+4.3.2.1.domain.mo.us, 				mo.us, 		domain.mo.us, 		4.3.2.1,  		avg_script_time: 3.896  	avg_query_time: 3.441  	qps:   290,575.1
+4.3.2.1.domain.k12.mo.us, 			k12.mo.us, 	domain.k12.mo.us, 	4.3.2.1,  		avg_script_time: 3.910  	avg_query_time: 3.453  	qps:   289,591.3
+5.4.3.2.1.domain.us, 				us, 		domain.us, 			5.4.3.2.1,  	avg_script_time: 3.758  	avg_query_time: 3.296  	qps:   303,363.2
+5.4.3.2.1.domain.mo.us, 			mo.us, 		domain.mo.us, 		5.4.3.2.1,  	avg_script_time: 3.965  	avg_query_time: 3.513  	qps:   284,654.9
+5.4.3.2.1.domain.k12.mo.us, 		k12.mo.us, 	domain.k12.mo.us, 	5.4.3.2.1,  	avg_script_time: 3.935  	avg_query_time: 3.475  	qps:   287,774.6
+6.5.4.3.2.1.domain.us, 				us, 		domain.us, 			6.5.4.3.2.1,  	avg_script_time: 3.776  	avg_query_time: 3.320  	qps:   301,240.3
+6.5.4.3.2.1.domain.mo.us, 			mo.us, 		domain.mo.us, 		6.5.4.3.2.1,  	avg_script_time: 3.996  	avg_query_time: 3.538  	qps:   282,674.3
+6.5.4.3.2.1.domain.k12.mo.us, 		k12.mo.us, 	domain.k12.mo.us, 	6.5.4.3.2.1,  	avg_script_time: 3.933  	avg_query_time: 3.476  	qps:   287,666.3
+7.6.5.4.3.2.1.domain.us, 			us, 		domain.us, 			7.6.5.4.3.2.1,  avg_script_time: 3.821  	avg_query_time: 3.367  	qps:   296,989.9
+7.6.5.4.3.2.1.domain.mo.us, 		mo.us, 		domain.mo.us, 		7.6.5.4.3.2.1,  avg_script_time: 4.048  	avg_query_time: 3.592  	qps:   278,383.6
+7.6.5.4.3.2.1.domain.k12.mo.us, 	k12.mo.us, 	domain.k12.mo.us, 	7.6.5.4.3.2.1,  avg_script_time: 3.992  	avg_query_time: 3.534  	qps:   282,938.1
+
+
