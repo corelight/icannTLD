@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  gather_facts: no
+  become: yes
+
+
+
+  vars_files:
+    - ./sensor_vars.yml
+
+
+  tasks:
+
+
+# Use the Corelight-Client to upload the list to the Input Framework on the Sensor.
+  - name: Upload trusted_domains.csv list to sensors
+    command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name trusted_domains.dat --file ./source_files/trusted_domains.dat
+    with_items: "{{ sensor_information }}"
+    # when: first_level_icann_list.changed
