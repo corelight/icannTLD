@@ -195,28 +195,28 @@
   - name: Create/Copy 1st level working file to final ICANN TLD list
     fetch:
       src: ./temp/1st_level_effective_tlds.dat
-      dest: ./temp/1st_level_public_icann.dat
+      dest: ./source_files/1st_level_public_icann.dat
       flat: yes
     register: first_level_icann_list
 
   - name: Create/Copy 2nd level working file to final ICANN TLD list
     fetch:
       src: ./temp/2nd_level_effective_tlds.dat
-      dest: ./temp/2nd_level_public_icann.dat
+      dest: ./source_files/2nd_level_public_icann.dat
       flat: yes
     register: second_level_icann_list
 
   - name: Create/Copy 3rd level working file to final ICANN TLD list
     fetch:
       src: ./temp/3rd_level_effective_tlds.dat
-      dest: ./temp/3rd_level_public_icann.dat
+      dest: ./source_files/3rd_level_public_icann.dat
       flat: yes
     register: third_level_icann_list
 
   - name: Create/Copy 4th level working file to final ICANN TLD list
     fetch:
       src: ./temp/4th_level_effective_tlds.dat
-      dest: ./temp/4th_level_public_icann.dat
+      dest: ./source_files/4th_level_public_icann.dat
       flat: yes
     register: fourth_level_icann_list
 
@@ -225,21 +225,21 @@
 # The "when" is added and tied to the "register" statement on the previous task that is idempotent.  This will
 # keep the task from executing if it nothing has changed.
   - name: Upload 1st level ICANN TLD list to sensors
-    command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 1st_level_public_icann.dat --file ./temp/1st_level_public_icann.dat
+    command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 1st_level_public_icann.dat --file ./source_files/1st_level_public_icann.dat
     with_items: "{{ sensor_information }}"
     when: first_level_icann_list.changed
 
   - name: Upload 2nd level ICANN TLD list to sensors
-    command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 2nd_level_public_icann.dat --file ./temp/2nd_level_public_icann.dat
+    command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 2nd_level_public_icann.dat --file ./source_files/2nd_level_public_icann.dat
     with_items: "{{ sensor_information }}"
     when: second_level_icann_list.changed
 
   - name: Upload 3rd level ICANN TLD list to sensors
-    command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 3rd_level_public_icann.dat --file ./temp/3rd_level_public_icann.dat
+    command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 3rd_level_public_icann.dat --file ./source_files/3rd_level_public_icann.dat
     with_items: "{{ sensor_information }}"
     when: third_level_icann_list.changed
 
   - name: Upload 4th level ICANN TLD list to sensors
-    command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 4th_level_public_icann.dat --file ./temp/4th_level_public_icann.dat
+    command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 4th_level_public_icann.dat --file ./source_files/4th_level_public_icann.dat
     with_items: "{{ sensor_information }}"
     when: fourth_level_icann_list.changed

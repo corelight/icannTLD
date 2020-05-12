@@ -1,8 +1,8 @@
 module icannTLD;
 
 redef record DNS::Info += {
-	effective_subdomain: string &log &optional;
-	effective_domain: string &log &optional;
+	icann_host_subdomain: string &log &optional;
+	icann_domain: string &log &optional;
 	icann_tld: string &log &optional;
 };
 
@@ -59,8 +59,8 @@ function FindTLD(c: connection)
 	local dot_query = "." + c$dns$query;
 	if ( effective_tld_local in c$dns$query ) {
 		c$dns$icann_tld = "local";
-		c$dns$effective_domain = "local";
-		c$dns$effective_subdomain = "";
+		c$dns$icann_domain = "local";
+		c$dns$icann_host_subdomain = "";
 		break;
 	}
 	if ( effective_tlds_4th_level in dot_query )
@@ -74,17 +74,17 @@ function FindTLD(c: connection)
 	local icann_tld_raw = find_last(dot_query, extraction_regex[tld_parts]);
 	c$dns$icann_tld = lstrip(icann_tld_raw, "\.");
 	if (c$dns$icann_tld == c$dns$query) {
-		c$dns$effective_domain = c$dns$query;
-		c$dns$effective_subdomain = "";
+		c$dns$icann_domain = c$dns$query;
+		c$dns$icann_host_subdomain = "";
 	}
 	else {
-		local effective_domain_raw = find_last(dot_query, extraction_regex[tld_parts +1]);
-		c$dns$effective_domain = lstrip(effective_domain_raw, "\.");
-		if (c$dns$effective_domain == c$dns$query){
-			c$dns$effective_subdomain = "";
+		local icann_domain_raw = find_last(dot_query, extraction_regex[tld_parts +1]);
+		c$dns$icann_domain = lstrip(icann_domain_raw, "\.");
+		if (c$dns$icann_domain == c$dns$query){
+			c$dns$icann_host_subdomain = "";
 		}
 		else {
-			c$dns$effective_subdomain = sub(c$dns$query, extraction_regex[tld_parts +1], "");
+			c$dns$icann_host_subdomain = sub(c$dns$query, extraction_regex[tld_parts +1], "");
 		}
 	}	
 }
@@ -118,16 +118,15 @@ event Input::end_of_data(name: string, source: string) {
 		c$dns = dns_info;
 		c$dns$query=test_query;
 		c$dns$icann_tld = "";
-		c$dns$effective_domain = "";
-		c$dns$effective_subdomain = "";
+		c$dns$icann_domain = "";
+		c$dns$icann_host_subdomain = "";
 		local x = 0;
 		local start_time = current_time();
 		while ( ++x < iterations ) {
 			FindTLD(c);
 		}
 		local end_time = current_time();
-		print fmt("Time: %.6f", end_time - start_time) +" " +c$dns$query, c$dns$icann_tld, c$dns$effective_domain, c$dns$effective_subdomain, "";
-		# print effective_tlds_4th_level;
+		print fmt("Time: %.6f", end_time - start_time) +" " +c$dns$query, c$dns$icann_host_subdomain, c$dns$icann_domain, c$dns$icann_tld, "", "";
 		terminate();
 		exit(0);
 	}

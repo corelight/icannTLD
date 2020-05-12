@@ -5,7 +5,7 @@
 ##!
 ##! Author: Seth Hall <seth@icir.org>
 
-module DomainTLD;
+module icannTLD;
 
 export {
 	## This function uses a built in list of "effective" TLDs pulled from 
@@ -91,8 +91,7 @@ function zone_by_depth(domain: string, depth: count): string
 	if ( result == "" )
 		return domain;
 	
-	# return result[1:];
-	return result;
+	return result[1:];
 	}
 
 function effective_tld(domain: string): string
@@ -166,8 +165,7 @@ event zeek_init() {
         info = effective_names(test_query);
     }
 	local end_time = current_time();
-	print fmt("Time: %.6f", end_time - start_time);
-	print test_query, info;
+	print fmt("Time: %.6f", end_time - start_time) +" " +test_query, info, "", "";
 	terminate();
 	exit(0);
 }

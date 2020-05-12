@@ -1,10 +1,3 @@
-##! This module contains some convenience mechanisms for extracting TLDs
-##! and domains from fully qualified domain names using data available
-##! from Mozilla which can be found here:
-##!   https://publicsuffix.org/list/effective_tld_names.dat
-##!
-##! Author: Seth Hall <seth@icir.org>
-
 module icannTLD;
 
 redef record DNS::Info += {
@@ -33,9 +26,8 @@ const tld_extraction_suffixes: table[count] of pattern = {
 	[6] = /\.[^\.]+\.[^\.]+\.[^\.]+\.[^\.]+\.[^\.]\.[^\.]+$/,
 };
 
-function effective_tld(c: connection)
-	{
-	local query = "."+c$dns$query;
+function effective_tld(c: connection) {
+	local dot_query = "."+c$dns$query;
 	if ( effective_tld_local in c$dns$query ) {
 		c$dns$effective_tld = "local";
 		c$dns$effective_domain = "local";
@@ -43,23 +35,29 @@ function effective_tld(c: connection)
 		break;
 	}
 	local depth=1;
-	if ( effective_tlds_4th_level in query )
+	if ( effective_tlds_4th_level in dot_query )
 		depth=4;
-	else if ( effective_tlds_3rd_level in query )
+	else if ( effective_tlds_3rd_level in dot_query )
 		depth=3;
-	else if ( effective_tlds_2nd_level in query )
+	else if ( effective_tlds_2nd_level in dot_query )
 		depth=2;
 	# set dns log vaules
-	local q_tld = find_last(query, tld_extraction_suffixes[depth]);
+	local q_tld = find_last(dot_query, tld_extraction_suffixes[depth]);
 	c$dns$effective_tld = lstrip(q_tld, "\.");
-	local q_domain = find_last(query, tld_extraction_suffixes[depth +1]);
-	c$dns$effective_domain = lstrip(q_domain, "\.");
-	c$dns$effective_subdomain = sub(c$dns$query, tld_extraction_suffixes[depth +1], "");
-	if ( c$dns$effective_domain == "" )
+	if (c$dns$effective_tld == c$dns$query) {
 		c$dns$effective_domain = c$dns$query;
-	if ( c$dns$effective_subdomain == c$dns$query)
-		c$dns$effective_subdomain = "";
 	}
+	else {
+		local q_domain = find_last(dot_query, tld_extraction_suffixes[depth +1]);
+		c$dns$effective_domain = lstrip(q_domain, "\.");
+		if (c$dns$effective_domain == c$dns$query) {
+			c$dns$effective_subdomain = "";
+		}
+		else {
+			c$dns$effective_subdomain = sub(c$dns$query, tld_extraction_suffixes[depth +1], "");
+		}
+	}
+}
 
 #event bro_init()
 #	{
@@ -92,7 +90,7 @@ event zeek_init() {
         effective_tld(c);
     }
 	local end_time = current_time();
-	print fmt("Time: %.6f", end_time - start_time) +" " +c$dns$query, c$dns$effective_tld, c$dns$effective_domain, c$dns$effective_subdomain, "";
+	print fmt("Time: %.6f", end_time - start_time) +" " +c$dns$query, c$dns$effective_subdomain, c$dns$effective_domain, c$dns$effective_tld, "", "";
 	terminate();
 	exit(0);
 }
