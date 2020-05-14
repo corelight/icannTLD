@@ -68,14 +68,14 @@ event bro_init() &priority=10 {
 # Then use the appropriate regex pattern to extract the desired value.
 event dns_end(c: connection, msg: dns_msg) {
 	if ( c?$dns && c$dns?$query ) {
-		c$dns$is_trusted_domain = "F";
+		c$dns$is_trusted_domain = "false";
 		
 		# Is the query for a hostname or does it end in .local?
 		if ( effective_tld_local in c$dns$query ) {
 			c$dns$icann_tld = "local";
 			c$dns$icann_domain = "local";
 			c$dns$icann_host_subdomain = "";
-			c$dns$is_trusted_domain = "T";
+			c$dns$is_trusted_domain = "true";
 			break;
 		}
 
@@ -96,7 +96,7 @@ event dns_end(c: connection, msg: dns_msg) {
 		if (c$dns$icann_tld == "in-addr.arpa") {
 			c$dns$icann_domain = "in-addr.arpa";
 			c$dns$icann_host_subdomain = "";
-			c$dns$is_trusted_domain = "T";
+			c$dns$is_trusted_domain = "true";
 			break;
 		}
 		
@@ -116,7 +116,7 @@ event dns_end(c: connection, msg: dns_msg) {
 		}
 
 		if (c$dns$icann_domain in trusted_domains_set) {
-			c$dns$is_trusted_domain = "T";
+			c$dns$is_trusted_domain = "true";
 		}
 	}
 }
