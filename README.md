@@ -17,4 +17,4 @@ The files in the source_files folder SHOULD BE LOADED INTO THE SENSOR PRIOR TO L
 
 This script does not currently use any list for 1st level domains, (i.e. ".com"). If the Top Level Domain (tld) does not match the 2, 3 or 4 part regex patterns, it's assumed it is a 1st level tld. The script can be modified to only list ICANN tld's but it does not currently.
 
-This script also identifies trusted domains with a true or false (trusted_domain: T or F).
+This script also identifies trusted domains with a true or false (trusted_domain: true or false).
