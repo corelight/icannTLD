@@ -1,19 +1,25 @@
 ---
-- hosts: localhost
+- hosts: all
   gather_facts: no
-  become: yes
-
-
+  
+  vars:
+    - ansible_python_interpreter: "/usr/bin/python3"
 
   vars_files:
-    - ./sensor_vars.yml
-
+    - ./source_files/secrets.yml
 
   tasks:
 
+# Use the Corelight-Client to upload the list to the Input Framework on Physical and Virtual Sensors.
+  - name:         Upload trusted_domains.csv list to sensors
+    command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name trusted_domains.dat --file ./source_files/trusted_domains.dat
+    delegate_to:  localhost
+    when:         "'software_sensors' not in group_names"
 
-# Use the Corelight-Client to upload the list to the Input Framework on the Sensor.
-  - name: Upload trusted_domains.csv list to sensors
-    command: corelight-client -b "{{ item.address }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name trusted_domains.dat --file ./source_files/trusted_domains.dat
-    with_items: "{{ sensor_information }}"
-    # when: first_level_icann_list.changed
+# Use the Ansible Copy module to upload the list to the Input Framework on the Software Sensor.
+  - name:         Upload trusted_domains.csv list to Software Sensors
+    copy:
+      src:            "./source_files/trusted_domains.dat"
+      dest:           /etc/corelight/input_files/trusted_domains.dat
+      mode:           0644
+    when:         "'software_sensors' in group_names"
