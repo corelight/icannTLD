@@ -39,7 +39,7 @@ global third_icannTLD_set: set[string] = set();
 global fourth_icannTLD_set: set[string] = set();
 global trusted_domains_set: set[string] = set();
 
-event bro_init() &priority=10 {
+event zeek_init() &priority=10 {
 	Input::add_table([$source="1st_level_public_icann.dat", $name="first_icannTLD_set",
 					$idx=Idx, $destination=first_icannTLD_set,
 					$mode=Input::REREAD]);

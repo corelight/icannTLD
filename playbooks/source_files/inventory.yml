@@ -1,0 +1,17 @@
+software_sensors:
+    hosts:
+      swSensor1:
+        ansible_host:       192.168.1.23
+        ansible_user:       ubuntu
+physical_sensors:
+    hosts:
+      ap200:
+        ansible_host:       192.168.1.20
+    vars:
+      sensor_username:      admin
+virtual_sensors:
+    hosts:
+      vsensor1:
+        ansible_host:       192.168.1.21
+    vars:
+      sensor_username:      admin
