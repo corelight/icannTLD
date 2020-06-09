@@ -2,7 +2,7 @@
 
 ## Script Description
 
-Zeek script using the official ICANN Top-Level Domain (TLD) list with the Input Framework to extract the relevant information from a DNS query and mark whether it's trusted or not.  The source of the ICANN TLDs can be found here: https://publicsuffix.org/list/effective_tld_names.dat.  The Trusted Domains list is a custom list, created by the user, to filter domains during searches.
+Zeek script using the official ICANN Top-Level Domain (TLD) list with the Input Framework to extract the relevant information from a DNS query and mark whether it's trusted or not.  The source of the ICANN TLDs can be found here: <https://publicsuffix.org/list/effective_tld_names.dat.>  The Trusted Domains list is a custom list, created by the user, to filter domains during searches.
 
 ## Script Functions
 
