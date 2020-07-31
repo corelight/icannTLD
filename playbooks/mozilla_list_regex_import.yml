@@ -32,6 +32,13 @@
       state:      directory
       mode:       '0755'
 
+# Create a working directory to hold the list.
+  - name:         Create a directory if it does not exist
+    file:
+      path:       ./source_files
+      state:      directory
+      mode:       '0755'
+
 # Download the list if it has changed and store is as is.
   - name:         Download Public Suffix list from Mozilla
     get_url:
