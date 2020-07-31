@@ -40,10 +40,11 @@
       mode:       '0755'
 
 # Download the list if it has changed and store is as is.
-  - name:         Download Public Suffix list from Mozilla
+  - name:              Download Public Suffix list from Mozilla
     get_url:
-      url:        'https://publicsuffix.org/list/effective_tld_names.dat'
-      dest:       ./temp/effective_tld_names.dat
+      url:            'https://publicsuffix.org/list/effective_tld_names.dat'
+      dest:           ./temp/effective_tld_names.dat
+      validate_certs: no
 
 # Create the working file if it does not exist.
 # This file is where the extracted content we want from Mozilla will go.
@@ -195,7 +196,7 @@
     changed_when: false
 
 
-- hosts: all
+- hosts: ap200
   gather_facts: no
   become: yes
   
@@ -285,18 +286,22 @@
     command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 1st_level_public_icann.dat --file ./source_files/1st_level_public_icann.dat
     delegate_to:  localhost
     when:         "'software_sensors' not in group_names"
+    become:       false
 
   - name:         Upload 2nd level ICANN TLD list to sensors
     command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 2nd_level_public_icann.dat --file ./source_files/2nd_level_public_icann.dat
     delegate_to:  localhost
     when:         "'software_sensors' not in group_names"
+    become:       false
 
   - name:         Upload 3rd level ICANN TLD list to sensors
     command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 3rd_level_public_icann.dat --file ./source_files/3rd_level_public_icann.dat
     delegate_to:  localhost
     when:         "'software_sensors' not in group_names"
+    become:       false
 
   - name:         Upload 4th level ICANN TLD list to sensors
     command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 4th_level_public_icann.dat --file ./source_files/4th_level_public_icann.dat
     delegate_to:  localhost
     when:         "'software_sensors' not in group_names"
+    become:       false
