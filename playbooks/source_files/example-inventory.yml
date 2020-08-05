@@ -1,17 +1,35 @@
-software_sensors:
-    hosts:
-      swSensor1:
-        ansible_host:       192.168.1.23
-        ansible_user:       ubuntu
-physical_sensors:
-    hosts:
-      ap200:
-        ansible_host:       192.168.1.20
-    vars:
-      sensor_username:      admin
-virtual_sensors:
-    hosts:
-      vsensor1:
-        ansible_host:       192.168.1.21
-    vars:
-      sensor_username:      admin
+all:
+  children:
+    suricata_update_host:
+      hosts:
+        host1:
+            ansible_host: (ip.address)
+            ansible_user: (username)
+    sensors:
+      children:
+        software_sensors:
+          hosts:
+            swsensor1:
+              ansible_host: (ip.address)
+              ansible_user: (username)
+            swsensor2:
+              ansible_host: (ip.address)
+              ansible_user: (username)
+        physical_sensors:
+          hosts:
+            AP3000-1:
+              ansible_host: (ip.address)
+              sensor_username: (username)
+              UID:
+            AP200-1:
+              ansible_host: (ip.address)
+              sensor_username: (username)
+              UID:
+        virtual_sensors:
+          hosts:
+            vSensor1:
+              ansible_host: (ip.address)
+              sensor_username: (username)
+              UID:
+  vars:
+    fleet_ip:

@@ -1,205 +1,15 @@
 ---
 - hosts: localhost
-  gather_facts: yes
-  become: yes
-  
-  vars:
-    - ansible_python_interpreter: "/usr/bin/python3"
-
-  vars_files:
-    - ./source_files/secrets.yml
-
-  tasks:
-
-  # Make sure the Ansible Host has the Corelight-Client and it's dependencies.
-  # Keeping these tasks here will also ensure the client is the latest version every time it's used.
-  - name:         Add additional packages, python3.x, pip3
-    apt:
-      pkg:
-      - python3-pip
-      update-cache: yes
-
-  - name:         install Corelight Client
-    pip:
-      name: 
-        - corelight-client
-      executable: pip3
-
-# Create a working directory to hold the list.
-  - name:         Create a directory if it does not exist
-    file:
-      path:       ./temp
-      state:      directory
-      mode:       '0755'
-
-# Create a working directory to hold the list.
-  - name:         Create a directory if it does not exist
-    file:
-      path:       ./source_files
-      state:      directory
-      mode:       '0755'
-
-# Download the list if it has changed and store is as is.
-  - name:              Download Public Suffix list from Mozilla
-    get_url:
-      url:            'https://publicsuffix.org/list/effective_tld_names.dat'
-      dest:           ./temp/effective_tld_names.dat
-      validate_certs: no
-
-# Create the working file if it does not exist.
-# This file is where the extracted content we want from Mozilla will go.
-  - name:         Create/Copy contents to working file
-    fetch:
-      src:        ./temp/effective_tld_names.dat
-      dest:       ./temp/effective_tld_names_formatted.dat
-      flat:       yes
-    changed_when: false
-
-# Format the ICANN TLD list
-  - name:         Remove all Private Domain Information (requires Ansible >= 2.4)
-    replace:
-      path:       ./temp/effective_tld_names_formatted.dat
-      after:      '// ===END ICANN DOMAINS==='
-      regexp:     '^(.+)$'
-    changed_when: false
-
-  - name:         Find all punycode domains and remove comments
-    replace:
-      path:       ./temp/effective_tld_names_formatted.dat
-      regexp:     '^(\/\/ )(xn--[^ ]+)(.*)'
-      replace:    '\2'
-    changed_when: false
-
-  - name:         Remove all lines that contain characters not on the list
-    lineinfile:
-      path:       ./temp/effective_tld_names_formatted.dat
-      regexp:     '[^\n\w\d._-]'
-      state:      absent
-    changed_when: false
-
-  - name:         Remove all blank lines
-    lineinfile:
-      path:       ./temp/effective_tld_names_formatted.dat
-      regexp:     '^$'
-      state:      absent
-    changed_when: false
-
-## sort TLD by number of parts
-# 1st level TLDs
-  - name:         Create/Copy contents to 1st_level_tlds.dat
-    fetch:
-      src:        ./temp/effective_tld_names_formatted.dat
-      dest:       ./temp/1st_level_effective_tlds.dat
-      flat:       yes
-    changed_when: false
-
-  - name:         Remove all non 1st level tlds
-    lineinfile:
-      path:       ./temp/1st_level_effective_tlds.dat
-      regexp:     '[.]'
-      state:      absent
-    changed_when: false
-
-  - name:         Insert Index for Input Framework
-    lineinfile:
-      path:       ./temp/1st_level_effective_tlds.dat
-      insertbefore: BOF
-      regex:      '^(#fields	tld)$' 
-      line:       "#fields	tld"
-      state:      present
-    changed_when: false
-
-# 2nd level TLDs
-  - name:         Create/Copy contents to 2nd_level_tlds.dat
-    fetch:
-      src:        ./temp/effective_tld_names_formatted.dat
-      dest:       ./temp/2nd_level_effective_tlds.dat
-      flat:       yes
-    changed_when: false
-
-  - name:         Remove 1st level tlds
-    lineinfile:
-      path:       ./temp/2nd_level_effective_tlds.dat
-      regexp:     '^[^.]+$'
-      state:      absent
-    changed_when: false
-
-  - name:         Remove 3rd & 4th level tlds
-    lineinfile:
-      path:       ./temp/2nd_level_effective_tlds.dat
-      regexp:     '^([^.]+[.]){2,3}[^.]+$'
-      state:      absent
-    changed_when: false
-
-  - name:         Insert Index for Input Framework
-    lineinfile:
-      path:       ./temp/2nd_level_effective_tlds.dat
-      insertbefore: BOF
-      regex:      '^(#fields	tld)$' 
-      line:       "#fields	tld"
-      state:      present
-    changed_when: false
-
-# 3rd level TLDs
-  - name:         Create/Copy contents to 3rd_level_tlds.dat
-    fetch:
-      src:        ./temp/effective_tld_names_formatted.dat
-      dest:       ./temp/3rd_level_effective_tlds.dat
-      flat:       yes
-    changed_when: false
-
-  - name:         Remove 1st & 2nd level tlds
-    lineinfile:
-      path:       ./temp/3rd_level_effective_tlds.dat
-      regexp:     '^([^.]+[.]){0,1}[^.]+$'
-      state:      absent
-    changed_when: false
-
-  - name:         Remove 4th level tlds
-    lineinfile:
-      path:       ./temp/3rd_level_effective_tlds.dat
-      regexp:     '^([^.]+[.]){3}[^.]+$'
-      state:      absent
-    changed_when: false
-
-  - name:         Insert Index for Input Framework
-    lineinfile:
-      path:       ./temp/3rd_level_effective_tlds.dat
-      insertbefore: BOF
-      regex:      '^(#fields	tld)$' 
-      line:       "#fields	tld"
-      state:      present
-    changed_when: false
-
-# 4th level TLDs
-  - name:         Create/Copy contents to 4th_level_tlds.dat
-    fetch:
-      src:        ./temp/effective_tld_names_formatted.dat
-      dest:       ./temp/4th_level_effective_tlds.dat
-      flat:       yes
-    changed_when: false
-
-  - name:         Remove 1st thru 3rd level tlds
-    lineinfile:
-      path:       ./temp/4th_level_effective_tlds.dat
-      regexp:     '^([^.]+[.]){0,2}[^.]+$'
-      state:      absent
-    changed_when: false
-
-  - name:         Insert Index for Input Framework
-    lineinfile:
-      path:       ./temp/4th_level_effective_tlds.dat
-      insertbefore: BOF
-      regex:      '^(#fields	tld)$' 
-      line:       "#fields	tld"
-      state:      present
-    changed_when: false
-
-
-- hosts: ap200
   gather_facts: no
-  become: yes
-  
+  vars_prompt:
+  - name: target
+    prompt: Please enter the target host name or group name
+    private: no
+
+  - name: fleet_managed
+    prompt: Are the sensors managed by Fleet?  yes (y) or no (n)
+    private: no
+
   vars:
     - ansible_python_interpreter: "/usr/bin/python3"
 
@@ -207,101 +17,342 @@
     - ./source_files/secrets.yml
 
   tasks:
+    - set_fact:
+        target_system: "{{ target }}"
+      changed_when: false
+    - set_fact:
+        fleet: "{{ fleet_managed }}"
 
-  - name:         Gather Facts
-    setup:
-    when:         "'software_sensors' in group_names"
+- hosts: "{{ target_system }}"
+  become: yes
+  gather_facts: no
+  vars:
+    - target_system: "{{ hostvars['localhost']['target_system'] }}"
+    - fleet: "{{ hostvars['localhost']['fleet_managed'] }}"
 
-# Copy the contents of the working file to the finished copy that will get pushed to the Sensors.
-# This gives us a file to compare against to check for changes.
-# For example, if the only thing that changed in Mozilla's copy was private domains, 
-# we will download a new copy.  However, there were no changes in the content we care about
-# so we won't push a new copy to the Sensors.
-  - name:         Create/Copy 1st level working file to final ICANN TLD list
-    fetch:
-      src:        ./temp/1st_level_effective_tlds.dat
-      dest:       ./source_files/1st_level_public_icann.dat
-      flat:       yes
-    delegate_to:  localhost
-    notify:       Upload 1st level ICANN TLD list to sensors
+  vars_files:
+    - ./source_files/secrets.yml
 
-  - name:         Create/Copy 2nd level working file to final ICANN TLD list
-    fetch:
-      src:        ./temp/2nd_level_effective_tlds.dat
-      dest:       ./source_files/2nd_level_public_icann.dat
-      flat:       yes
-    delegate_to:  localhost
-    notify:       Upload 2nd level ICANN TLD list to sensors
+  tasks:
 
-  - name:         Create/Copy 3rd level working file to final ICANN TLD list
-    fetch:
-      src:        ./temp/3rd_level_effective_tlds.dat
-      dest:       ./source_files/3rd_level_public_icann.dat
-      flat:       yes
-    delegate_to:  localhost
-    notify:       Upload 3rd level ICANN TLD list to sensors
+    - name:             Localhost Task Block
+      block:
+        # Make sure the Ansible Host has the Corelight-Client and it's dependencies.
+        # Keeping these tasks here will also ensure the client is the latest version every time it's used.
+        - name:         Add additional packages, python3.x, pip3
+          apt:
+            pkg:
+            - python3-pip
+            update-cache: yes
 
-  - name:         Create/Copy 4th level working file to final ICANN TLD list
-    fetch:
-      src:        ./temp/4th_level_effective_tlds.dat
-      dest:       ./source_files/4th_level_public_icann.dat
-      flat:       yes
-    delegate_to:  localhost
-    notify:       Upload 4th level ICANN TLD list to sensors
+        - name:         install Corelight Client
+          pip:
+            name: 
+              - corelight-client
+            executable: pip3
 
-#Use the Ansible Copy module to upload the list to the Input Framework on the Software Sensors
-  - name:         Upload 1st level ICANN TLD list to software sensors
-    copy:
-      src:        "./source_files/1st_level_public_icann.dat"
-      dest:       /etc/corelight/input_files/1st_level_public_icann.dat
-      mode:       0644
-    when:         "'software_sensors' in group_names"
+    # Create a working directory to hold the list.
+        - name:         Create a directory if it does not exist
+          file:
+            path:       ./temp
+            state:      directory
+            mode:       '0755'
 
-  - name:         Upload 2nd level ICANN TLD list to software sensors
-    copy:
-      src:        "./source_files/2nd_level_public_icann.dat"
-      dest:       /etc/corelight/input_files/2nd_level_public_icann.dat
-      mode:       0644
-    when:         "'software_sensors' in group_names"
+      # Create a working directory to hold the list.
+        - name:         Create a directory if it does not exist
+          file:
+            path:       ./source_files
+            state:      directory
+            mode:       '0755'
 
-  - name:         Upload 3rd level ICANN TLD list to software sensors
-    copy:
-      src:        "./source_files/3rd_level_public_icann.dat"
-      dest:       /etc/corelight/input_files/3rd_level_public_icann.dat
-      mode:       0644
-    when:         "'software_sensors' in group_names"
+      # Download the list if it has changed and store is as is.
+        - name:              Download Public Suffix list from Mozilla
+          get_url:
+            url:            'https://publicsuffix.org/list/effective_tld_names.dat'
+            dest:           ./temp/effective_tld_names.dat
+            validate_certs: no
 
-  - name:         Upload 4th level ICANN TLD list to software sensors
-    copy:
-      src:        "./source_files/4th_level_public_icann.dat"
-      dest:       /etc/corelight/input_files/4th_level_public_icann.dat
-      mode:       0644
-    when:         "'software_sensors' in group_names"
+      # Create the working file if it does not exist.
+      # This file is where the extracted content we want from Mozilla will go.
+        - name:         Create/Copy contents to working file
+          copy:
+            src:        ./temp/effective_tld_names.dat
+            dest:       ./temp/effective_tld_names_formatted.dat
+          changed_when: false
+
+      # Format the ICANN TLD list
+        - name:         Remove all Private Domain Information (requires Ansible >= 2.4)
+          replace:
+            path:       ./temp/effective_tld_names_formatted.dat
+            after:      '// ===END ICANN DOMAINS==='
+            regexp:     '^(.+)$'
+          changed_when: false
+
+        - name:         Find all punycode domains and remove comments
+          replace:
+            path:       ./temp/effective_tld_names_formatted.dat
+            regexp:     '^(\/\/ )(xn--[^ ]+)(.*)'
+            replace:    '\2'
+          changed_when: false
+
+        - name:         Remove all lines that contain characters not on the list
+          lineinfile:
+            path:       ./temp/effective_tld_names_formatted.dat
+            regexp:     '[^\n\w\d._-]'
+            state:      absent
+          changed_when: false
+
+        - name:         Remove all blank lines
+          lineinfile:
+            path:       ./temp/effective_tld_names_formatted.dat
+            regexp:     '^$'
+            state:      absent
+          changed_when: false
+
+      ## sort TLD by number of parts
+      # 1st level TLDs
+        - name:         Create/Copy contents to 1st_level_tlds.dat
+          copy:
+            src:        ./temp/effective_tld_names_formatted.dat
+            dest:       ./temp/1st_level_effective_tlds.dat
+          changed_when: false
+
+        - name:         Remove all non 1st level tlds from 1st_level_effective_tlds.dat
+          lineinfile:
+            path:       ./temp/1st_level_effective_tlds.dat
+            regexp:     '[.]'
+            state:      absent
+          changed_when: false
+
+        - name:         Insert Index for Input Framework in 1st_level_effective_tlds.dat
+          lineinfile:
+            path:       ./temp/1st_level_effective_tlds.dat
+            insertbefore: BOF
+            regex:      '^(#fields	tld)$' 
+            line:       "#fields	tld"
+            state:      present
+          changed_when: false
+
+      # 2nd level TLDs
+        - name:         Create/Copy contents to 2nd_level_tlds.dat
+          copy:
+            src:        ./temp/effective_tld_names_formatted.dat
+            dest:       ./temp/2nd_level_effective_tlds.dat
+          changed_when: false
+
+        - name:         Remove 1st level tlds from 2nd_level_effective_tlds.dat
+          lineinfile:
+            path:       ./temp/2nd_level_effective_tlds.dat
+            regexp:     '^[^.]+$'
+            state:      absent
+          changed_when: false
+
+        - name:         Remove 3rd & 4th level tlds
+          lineinfile:
+            path:       ./temp/2nd_level_effective_tlds.dat from 2nd_level_effective_tlds.dat
+            regexp:     '^([^.]+[.]){2,3}[^.]+$'
+            state:      absent
+          changed_when: false
+
+        - name:         Insert Index for Input Framework in 2nd_level_effective_tlds.dat
+          lineinfile:
+            path:       ./temp/2nd_level_effective_tlds.dat
+            insertbefore: BOF
+            regex:      '^(#fields	tld)$' 
+            line:       "#fields	tld"
+            state:      present
+          changed_when: false
+
+      # 3rd level TLDs
+        - name:         Create/Copy contents to 3rd_level_effective_tlds.dat
+          copy:
+            src:        ./temp/effective_tld_names_formatted.dat
+            dest:       ./temp/3rd_level_effective_tlds.dat
+          changed_when: false
+
+        - name:         Remove 1st & 2nd level tlds from 3rd_level_effective_tlds.dat
+          lineinfile:
+            path:       ./temp/3rd_level_effective_tlds.dat
+            regexp:     '^([^.]+[.]){0,1}[^.]+$'
+            state:      absent
+          changed_when: false
+
+        - name:         Remove 4th level tlds
+          lineinfile:
+            path:       ./temp/3rd_level_effective_tlds.dat from 3rd_level_effective_tlds.dat
+            regexp:     '^([^.]+[.]){3}[^.]+$'
+            state:      absent
+          changed_when: false
+
+        - name:         Insert Index for Input Framework in 3rd_level_effective_tlds.dat
+          lineinfile:
+            path:       ./temp/3rd_level_effective_tlds.dat
+            insertbefore: BOF
+            regex:      '^(#fields	tld)$' 
+            line:       "#fields	tld"
+            state:      present
+          changed_when: false
+
+      # 4th level TLDs
+        - name:         Create/Copy contents to 4th_level_effective_tlds.dat
+          copy:
+            src:        ./temp/effective_tld_names_formatted.dat
+            dest:       ./temp/4th_level_effective_tlds.dat
+          changed_when: false
+
+        - name:         Remove 1st thru 3rd level tlds from 4th_level_effective_tlds.dat
+          lineinfile:
+            path:       ./temp/4th_level_effective_tlds.dat
+            regexp:     '^([^.]+[.]){0,2}[^.]+$'
+            state:      absent
+          changed_when: false
+
+        - name:         Insert Index for Input Framework in 4th_level_effective_tlds.dat
+          lineinfile:
+            path:       ./temp/4th_level_effective_tlds.dat
+            insertbefore: BOF
+            regex:      '^(#fields	tld)$' 
+            line:       "#fields	tld"
+            state:      present
+          changed_when: false
+
+    # Copy the contents of the working file to the finished copy that will get pushed to the Sensors.
+    # This gives us a file to compare against to check for changes.
+    # For example, if the only thing that changed in Mozilla's copy was private domains, 
+    # we will download a new copy.  However, there were no changes in the content we care about
+    # so we won't push a new copy to the Sensors.
+        - name:         Compare/Copy 1st level working file to previous final ICANN TLD list
+          copy:
+            src:        ./temp/1st_level_effective_tlds.dat
+            dest:       ./source_files/1st_level_public_icann.dat
+          register:     new_1st_level
+
+        - name:         Compare/Copy 2nd level working file to previous final ICANN TLD list
+          copy:
+            src:        ./temp/2nd_level_effective_tlds.dat
+            dest:       ./source_files/2nd_level_public_icann.dat
+          register:     new_2nd_level
+
+        - name:         Compare/Copy 3rd level working file to previous final ICANN TLD list
+          copy:
+            src:        ./temp/3rd_level_effective_tlds.dat
+            dest:       ./source_files/3rd_level_public_icann.dat
+          register:     new_3rd_level
+
+        - name:         Compare/Copy 4th level working file to previous final ICANN TLD list
+          copy:
+            src:        ./temp/4th_level_effective_tlds.dat
+            dest:       ./source_files/4th_level_public_icann.dat
+          register:     new_4th_level
+      delegate_to:      localhost
+      run_once:         true
 
 
-  handlers:
+    #Use Corelight-Client to upload the list to the Input Framework for non-fleet managed physical or virtual sensors
+    - name:         Upload 1st level ICANN TLD list to non-fleet managed physical or virtual sensors
+      command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 1st_level_public_icann.dat --file ./source_files/1st_level_public_icann.dat
+      delegate_to:  localhost
+      when:
+        - new_1st_level.changed
+        - ('physical_sensors' in group_names or 'virtual_sensors' in group_names)
+        - (fleet == 'n' or fleet == "no")
+      become:       false
 
-  #Use Corelight-Client to upload the list to the Input Framework
-  - name:         Upload 1st level ICANN TLD list to sensors
-    command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 1st_level_public_icann.dat --file ./source_files/1st_level_public_icann.dat
-    delegate_to:  localhost
-    when:         "'software_sensors' not in group_names"
-    become:       false
+    - name:         Upload 2nd level ICANN TLD list to non-fleet managed physical or virtual sensors
+      command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 2nd_level_public_icann.dat --file ./source_files/2nd_level_public_icann.dat
+      delegate_to:  localhost
+      when:
+        - new_2nd_level.changed
+        - ('physical_sensors' in group_names or 'virtual_sensors' in group_names)
+        - (fleet == 'n' or fleet == "no")
+      become:       false
 
-  - name:         Upload 2nd level ICANN TLD list to sensors
-    command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 2nd_level_public_icann.dat --file ./source_files/2nd_level_public_icann.dat
-    delegate_to:  localhost
-    when:         "'software_sensors' not in group_names"
-    become:       false
+    - name:         Upload 3rd level ICANN TLD list to non-fleet managed physical or virtual sensors
+      command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 3rd_level_public_icann.dat --file ./source_files/3rd_level_public_icann.dat
+      delegate_to:  localhost
+      when:         
+        - new_3rd_level.changed
+        - ('physical_sensors' in group_names or 'virtual_sensors' in group_names)
+        - (fleet == 'n' or fleet == "no")
+      become:       false
 
-  - name:         Upload 3rd level ICANN TLD list to sensors
-    command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 3rd_level_public_icann.dat --file ./source_files/3rd_level_public_icann.dat
-    delegate_to:  localhost
-    when:         "'software_sensors' not in group_names"
-    become:       false
+    - name:         Upload 4th level ICANN TLD list to non-fleet managed physical or virtual sensors
+      command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 4th_level_public_icann.dat --file ./source_files/4th_level_public_icann.dat
+      delegate_to:  localhost
+      when:         
+        - new_4th_level.changed
+        - ('physical_sensors' in group_names or 'virtual_sensors' in group_names)
+        - (fleet == 'n' or fleet == "no")
+      become:       false
 
-  - name:         Upload 4th level ICANN TLD list to sensors
-    command:      corelight-client -b "{{ ansible_host }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 4th_level_public_icann.dat --file ./source_files/4th_level_public_icann.dat
-    delegate_to:  localhost
-    when:         "'software_sensors' not in group_names"
-    become:       false
+    #Use Corelight-Client to upload the list to the Input Framework for fleet managed physical or virtual sensors
+    - name:         Upload 1st level ICANN TLD list to fleet managed physical or virtual sensors
+      command:      corelight-client --fleet "{{ fleet_ip }}" --uid "{{ UID }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 1st_level_public_icann.dat --file ./source_files/1st_level_public_icann.dat
+      delegate_to:  localhost
+      when:
+        - new_1st_level.changed
+        - ('physical_sensors' in group_names or 'virtual_sensors' in group_names)
+        - (fleet == 'y' or fleet == "yes")
+      become:       false
+
+    - name:         Upload 2nd level ICANN TLD list to fleet managed physical or virtual sensors
+      command:      corelight-client --fleet "{{ fleet_ip }}" --uid "{{ UID }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 2nd_level_public_icann.dat --file ./source_files/2nd_level_public_icann.dat
+      delegate_to:  localhost
+      when:
+        - new_2nd_level.changed
+        - ('physical_sensors' in group_names or 'virtual_sensors' in group_names)
+        - (fleet == 'y' or fleet == "yes")
+      become:       false
+
+    - name:         Upload 3rd level ICANN TLD list to fleet managed physical or virtual sensors
+      command:      corelight-client --fleet "{{ fleet_ip }}" --uid "{{ UID }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 3rd_level_public_icann.dat --file ./source_files/3rd_level_public_icann.dat
+      delegate_to:  localhost
+      when:         
+        - new_3rd_level.changed
+        - ('physical_sensors' in group_names or 'virtual_sensors' in group_names)
+        - (fleet == 'y' or fleet == "yes")
+      become:       false
+
+    - name:         Upload 4th level ICANN TLD list to fleet managed physical or virtual sensors
+      command:      corelight-client --fleet "{{ fleet_ip }}" --uid "{{ UID }}" -u "{{ sensor_username }}" -p "{{ sensor_password }}" --no-password-save --ssl-no-verify-certificate bro input upload --name 4th_level_public_icann.dat --file ./source_files/4th_level_public_icann.dat
+      delegate_to:  localhost
+      when:         
+        - new_4th_level.changed
+        - ('physical_sensors' in group_names or 'virtual_sensors' in group_names)
+        - (fleet == 'y' or fleet == "yes")
+      become:       false
+
+
+
+  #Use the Ansible Copy module to upload the list to the Input Framework on the Software Sensors
+    - name:         Upload 1st level ICANN TLD list to software sensors
+      copy:
+        src:        "./source_files/1st_level_public_icann.dat"
+        dest:       /etc/corelight/input_files/1st_level_public_icann.dat
+        mode:       0644
+      when:
+        - "'software_sensors' in group_names"
+
+    - name:         Upload 2nd level ICANN TLD list to software sensors
+      copy:
+        src:        "./source_files/2nd_level_public_icann.dat"
+        dest:       /etc/corelight/input_files/2nd_level_public_icann.dat
+        mode:       0644
+      when:
+        - "'software_sensors' in group_names"
+
+    - name:         Upload 3rd level ICANN TLD list to software sensors
+      copy:
+        src:        "./source_files/3rd_level_public_icann.dat"
+        dest:       /etc/corelight/input_files/3rd_level_public_icann.dat
+        mode:       0644
+      when:
+        - "'software_sensors' in group_names"
+
+    - name:         Upload 4th level ICANN TLD list to software sensors
+      copy:
+        src:        "./source_files/4th_level_public_icann.dat"
+        dest:       /etc/corelight/input_files/4th_level_public_icann.dat
+        mode:       0644
+      when:
+        - "'software_sensors' in group_names"
