@@ -19,7 +19,7 @@ icannTLD parses every DNS query and adds the following fields to the DNS Log.
 
 ## Installation/Setup
 
-The files in the source_files folder **should be loaded into the sensor prior to loading this script package**.  They can be loaded directly into the sensor via the GUI or via the Corelight Client if desired.
+The files in the input_files folder **should be loaded into the sensor prior to loading this script package**.  They can be loaded directly into the sensor via the GUI or via the Corelight Client if desired.  You can also run the included Ansible Playbook to download the latest list from ICANN and upload it to all the sensors.
 
 Instructions for Open Source Zeek may vary.
 
@@ -45,16 +45,29 @@ TLDs are generally split into two categories:
 
 The list cannot be pulled directly from Mozilla.org and put on a Corelight/Zeek Sensor.  It will have to be filtered and formatted correctly first.  The included Ansible Playbook "mozilla_list_regex_import.yml" is an example of an Ansible playbook that will download the entire list, format it correctly, split it based on the number of top level domain parts, then upload all of the lists it to a Corelight Sensor using Ansible and the Corelight Client.
 
-Update sensor_vars.yml as appropriate.  It is not recommended to store your passwords in the var file, use some type of password vault.  With so many options for password vaults, this example is using the var file for simplicity.
+An example inventory.yml is included, update it as appropriate.  It is not recommended to store your passwords in clear text, use some type of password vault.
 
 ## Supporting files
 
-The files in the temp folder will be replaced by "mozilla_list_regex_import.yml" playbook.  The *icann.dat files in the source_files folder will also be replaced by the "mozilla_list_regex_import.yml" playbook.  They are included here as examples and are accurate as of the date of this commit.
+The icann.dat files in the input_files are only needed if you are not running the Ansible Playbook.
+The trusted_domains.dat file in the input_files is required.  Edit as appropriate.
 
-**Note:**  The included playbooks will update ALL of the sensors in the inventory list with the new ICANN TLD's or Trusted Domains respectively.  The {{ sensor_password }} should be placed in the secrets.yml file.  The Here is an example to run the playbooks in their current location.
+The playbook will create a source_files directory and a temp directory if they do not already exists.  The files in the temp folder are just working files as the playbook downloads an formats the list.  The icann.dat files in the source_files folder will be copied to the sensors by the playbook.
+
+**Note:**  The trusted_domains.dat file will need to be created and updated manually.  For the playbook to find the file, store it in the source_files folder.
+
+The included playbooks can update ALL of the sensors in the inventory list with the new ICANN TLD's or Trusted Domains respectively.  The {{ sensor_password }} should be placed in the secrets.yml file.  Here is an example to run the playbooks in their current location.
+
+The playbook will prompt for the name of the sensor or group of sensors to update and if the sensors are managed by Fleet.
 
 ```none
 ansible-playbook -i ./source_files/inventory.yml mozilla_list_regex_import.yml
+ansible-playbook -i ./source_files/inventory.yml update_trusted_domains.yml
+
+or
+
+ansible-playbook -i ./source_files/inventory.yml mozilla_list_regex_import.yml  --extra-vars '{"target":"all","fleet_managed":"no"}'
+ansible-playbook -i ./source_files/inventory.yml update_trusted_domains.yml  --extra-vars '{"target":"all","fleet_managed":"no"}'
 ```
 
 The test-benchmarks folder contains a benchmark script that runs a test version of the script through a series of tests and measures the results.  The test script also has comments through out it with more details.  Comments have been removed from the production script.
