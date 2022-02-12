@@ -1,5 +1,7 @@
 # icannTLD
 
+## Corelight-update can now be used to create and maintain the icannTLD input files.
+
 ## Script Description
 
 Zeek script using the official ICANN Top-Level Domain (TLD) list with the Input Framework to extract the relevant information from a DNS query and mark whether it's trusted or not.  The source of the ICANN TLDs can be found here: <https://publicsuffix.org/list/effective_tld_names.dat.>  The Trusted Domains list is a custom list, created by the user, to filter domains during searches.
@@ -47,27 +49,4 @@ The list cannot be pulled directly from Mozilla.org and put on a Corelight/Zeek 
 
 An example inventory.yml is included, update it as appropriate.  It is not recommended to store your passwords in clear text, use some type of password vault.
 
-## Supporting files
-
-The icann.dat files in the input_files are only needed if you are not running the Ansible Playbook.
-The trusted_domains.dat file in the input_files is required.  Edit as appropriate.
-
-The playbook will create a source_files directory and a temp directory if they do not already exists.  The files in the temp folder are just working files as the playbook downloads an formats the list.  The icann.dat files in the source_files folder will be copied to the sensors by the playbook.
-
 **Note:**  The trusted_domains.dat file will need to be created and updated manually.  For the playbook to find the file, store it in the source_files folder.
-
-The included playbooks can update ALL of the sensors in the inventory list with the new ICANN TLD's or Trusted Domains respectively.  The {{ sensor_password }} should be placed in the secrets.yml file.  Here is an example to run the playbooks in their current location.
-
-The playbook will prompt for the name of the sensor or group of sensors to update and if the sensors are managed by Fleet.
-
-```none
-ansible-playbook -i ./source_files/inventory.yml mozilla_list_regex_import.yml
-ansible-playbook -i ./source_files/inventory.yml update_trusted_domains.yml
-
-or
-
-ansible-playbook -i ./source_files/inventory.yml mozilla_list_regex_import.yml  --extra-vars '{"target":"all","fleet_managed":"no"}'
-ansible-playbook -i ./source_files/inventory.yml update_trusted_domains.yml  --extra-vars '{"target":"all","fleet_managed":"no"}'
-```
-
-The test-benchmarks folder contains a benchmark script that runs a test version of the script through a series of tests and measures the results.  The test script also has comments through out it with more details.  Comments have been removed from the production script.
