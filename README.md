@@ -21,7 +21,9 @@ icannTLD parses every DNS query and adds the following fields to the DNS Log.
 
 ## Installation/Setup
 
-The files in the input_files folder **should be loaded into the sensor prior to loading this script package**.  They can be loaded directly into the sensor via the GUI or via the Corelight Client if desired.  You can also run the included Ansible Playbook to download the latest list from ICANN and upload it to all the sensors.
+The files in the input_files folder **should be loaded into the sensor prior to loading this script package**.  They can be loaded directly into the sensor via the GUI or via the Corelight Client if desired.
+
+**Corelight-update** now supports creating and maintaining the input files required.
 
 Instructions for Open Source Zeek may vary.
 
@@ -45,8 +47,6 @@ TLDs are generally split into two categories:
 
 ## Updating the ICANN TLD list on a Sensor
 
-The list cannot be pulled directly from Mozilla.org and put on a Corelight/Zeek Sensor.  It will have to be filtered and formatted correctly first.  The included Ansible Playbook "mozilla_list_regex_import.yml" is an example of an Ansible playbook that will download the entire list, format it correctly, split it based on the number of top level domain parts, then upload all of the lists it to a Corelight Sensor using Ansible and the Corelight Client.
+The list cannot be pulled directly from Mozilla.org and put on a Corelight/Zeek Sensor.  It will have to be filtered and formatted correctly first.  **Corelight-update** now supports creating and maintaining the input files required.
 
-An example inventory.yml is included, update it as appropriate.  It is not recommended to store your passwords in clear text, use some type of password vault.
-
-**Note:**  The trusted_domains.dat file will need to be created and updated manually.  For the playbook to find the file, store it in the source_files folder.
+**Note:**  The trusted_domains.dat file will need to be created and updated manually.
