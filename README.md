@@ -49,4 +49,4 @@ TLDs are generally split into two categories:
 
 The list cannot be pulled directly from Mozilla.org and put on a Corelight/Zeek Sensor.  It will have to be filtered and formatted correctly first.  **Corelight-update** now supports creating and maintaining the input files required.
 
-**Note:**  The trusted_domains.dat file will need to be created and updated manually.
+**Note:**  The trusted_domains.dat file will need to be created manually.  It can then be uploaded manually, or **Corelight-update** can be used to upload the input file.
