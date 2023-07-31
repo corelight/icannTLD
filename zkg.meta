@@ -2,7 +2,7 @@
 description = A Zeek script using Input Framework to get icann_tld, icann_domain, icann_host_subdomain, and is_trusted_domain from a DNS query.  The field icann_host_subdomain contains the remaining query nodes after the domain is removed.  The is_trusted_domain is populated from a separate Input Framework set.
 tags = domain, dns, tld, input
 script_dir = scripts
-version = 24.0.0
+version = 27.0.0
 
 [input 1st_level_public_icann.dat]
 summary=TLD's with only one part
