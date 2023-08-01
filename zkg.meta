@@ -6,19 +6,19 @@ version = 27.0.0
 
 [input 1st_level_public_icann.dat]
 summary=TLD's with only one part
-description=Publicsuffix.org Top Level Domains with only one part. (.com, .edu, .etc)
+description=Publicsuffix.org Top Level Domains with only one part. (.com, .edu, etc.)
 
 [input 2nd_level_public_icann.dat]
 summary=TLD's with two parts
-description=Publicsuffix.org Top Level Domains with two parts. ( .edu.mo, .gov.mo, .etc)
+description=Publicsuffix.org Top Level Domains with two parts. ( .edu.mo, .gov.mo, etc.)
 
 [input 3rd_level_public_icann.dat]
 summary=TLD's with three parts
-description=Publicsuffix.org Top Level Domains with three parts. (.k12.mo.us, .k12.ms.us, .etc)
+description=Publicsuffix.org Top Level Domains with three parts. (.k12.mo.us, .k12.ms.us, etc.)
 
 [input 4th_level_public_icann.dat]
 summary=TLD's with four parts
-description=Publicsuffix.org Top Level Domains with four parts. (.pvt.k12.ma.us, .chtr.k12.ma.us, .etc)
+description=Publicsuffix.org Top Level Domains with four parts. (.pvt.k12.ma.us, .chtr.k12.ma.us, etc.)
 
 [input trusted_domains.dat]
 summary=Domains to flag as trusted
