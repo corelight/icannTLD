@@ -1,9 +1,14 @@
 module icannTLD;
 
 redef record DNS::Info += {
+	## Is the domain trusted based on a list of domains created manually.
 	is_trusted_domain: string &log &optional;
+	## Based on the publicsuffix.org top level domain database, the remainder of the FQDN after the domain.
+	## This could be a hostname, or a subdomain with a hostname.
 	icann_host_subdomain: string &log &optional;
+	## The domain, based on the publicsuffix.org top level domain database.
 	icann_domain: string &log &optional;
+	## The top level domain, based on publicsuffix.org top level domain database.
 	icann_tld: string &log &optional;
 };
 
@@ -69,7 +74,7 @@ event zeek_init() &priority=10 {
 event dns_end(c: connection, msg: dns_msg) {
 	if ( c?$dns && c$dns?$query ) {
 		c$dns$is_trusted_domain = "false";
-		
+
 		# Is the query for a hostname or does it end in .local?
 		if ( effective_tld_local in c$dns$query ) {
 			c$dns$icann_tld = "local";
@@ -99,7 +104,7 @@ event dns_end(c: connection, msg: dns_msg) {
 			c$dns$is_trusted_domain = "true";
 			break;
 		}
-		
+
 		if (c$dns$icann_tld == c$dns$query) {
 			c$dns$icann_domain = c$dns$query;
 			c$dns$icann_host_subdomain = "";
