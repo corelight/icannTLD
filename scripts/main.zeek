@@ -81,7 +81,7 @@ event dns_end(c: connection, msg: dns_msg) {
 			c$dns$icann_domain = "local";
 			c$dns$icann_host_subdomain = "";
 			c$dns$is_trusted_domain = "true";
-			break;
+			return;
 		}
 
 		local tld_parts=1;
@@ -102,7 +102,7 @@ event dns_end(c: connection, msg: dns_msg) {
 			c$dns$icann_domain = "in-addr.arpa";
 			c$dns$icann_host_subdomain = "";
 			c$dns$is_trusted_domain = "true";
-			break;
+			return;
 		}
 
 		if (c$dns$icann_tld == c$dns$query) {
