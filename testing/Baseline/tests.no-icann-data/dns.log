@@ -6,13 +6,13 @@
 #path	dns
 #open XXXX-XX-XX-XX-XX-XX
 #fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	trans_id	rtt	query	qclass	qclass_name	qtype	qtype_name	rcode	rcode_name	AA	TC	RD	RA	Z	answers	TTLs	rejected	is_trusted_domain	icann_host_subdomain	icann_domain	icann_tld
-#types	time	string	addr	port	addr	port	enum	count	interval	string	count	string	count	string	count	string	bool	bool	bool	bool	count	vector[string]	vector[interval]	bool	string	string	string	string
-XXXXXXXXXX.XXXXXX	CHhAvVGS1DHFjwGM9	192.168.1.20	62414	9.9.9.9	53	udp	50450	0.014790	example.net	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	2	93.184.215.14	3484.000000	F	false	(empty)	example.net	net
-XXXXXXXXXX.XXXXXX	ClEkJM2Vm5giqnMf4h	192.168.1.20	51213	9.9.9.9	53	udp	12167	-	sub.example.net	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	2	-	-	F	false	sub	example.net	net
-XXXXXXXXXX.XXXXXX	C4J4Th3PJpwUYZZ6gc	192.168.1.20	57738	9.9.9.9	53	udp	9992	-	example.research.aero	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	2	-	-	F	false	example	research.aero	aero
-XXXXXXXXXX.XXXXXX	CtPZjS20MLrsMUOJi2	192.168.1.20	52620	9.9.9.9	53	udp	405	0.094225	example.picard.replit.dev	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	2	35.226.206.236	30XXXXXXXXXX.XXXXXX	F	false	example.picard	replit.dev	dev
-XXXXXXXXXX.XXXXXX	CUM0KZ3MLUfNB0cl11	192.168.1.20	52554	9.9.9.9	53	udp	3576	-	example.auth.af-south-1.amazoncognito.com	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	2	-	-	F	false	example.auth.af-south-1	amazoncognito.com	com
-XXXXXXXXXX.XXXXXX	CmES5u32sYpV7JYN	192.168.1.20	51449	9.9.9.9	53	udp	52323	0.026825	corelight.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	2	199.60.103.6,199.60.103.106	6XXXXXXXXXX.XXXXXX,6XXXXXXXXXX.XXXXXX	F	false	(empty)	corelight.com	com
-XXXXXXXXXX.XXXXXX	CP5puj4I8PtEU4qzYg	192.168.1.20	54977	9.9.9.9	53	udp	56474	0.055018	example.de	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	2	217.160.0.248	360XXXXXXXXXX.XXXXXX	F	false	(empty)	example.de	de
-XXXXXXXXXX.XXXXXX	C37jN32gN3y3AZzyf6	192.168.1.20	63379	9.9.9.9	53	udp	58538	-	sub.example.de	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	2	-	-	F	false	sub	example.de	de
+#types	time	string	addr	port	addr	port	enum	count	interval	string	count	string	count	string	count	string	bool	bool	bool	bool	count	vector[string]	vector[interval]	bool	bool	string	string	string
+XXXXXXXXXX.XXXXXX	CHhAvVGS1DHFjwGM9	192.168.1.20	62414	9.9.9.9	53	udp	50450	0.014790	example.net	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	2	93.184.215.14	3484.000000	F	F	-	example.net	net
+XXXXXXXXXX.XXXXXX	ClEkJM2Vm5giqnMf4h	192.168.1.20	51213	9.9.9.9	53	udp	12167	-	sub.example.net	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	2	-	-	F	F	sub	example.net	net
+XXXXXXXXXX.XXXXXX	C4J4Th3PJpwUYZZ6gc	192.168.1.20	57738	9.9.9.9	53	udp	9992	-	example.research.aero	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	2	-	-	F	F	example	research.aero	aero
+XXXXXXXXXX.XXXXXX	CtPZjS20MLrsMUOJi2	192.168.1.20	52620	9.9.9.9	53	udp	405	0.094225	example.picard.replit.dev	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	2	35.226.206.236	30XXXXXXXXXX.XXXXXX	F	F	example.picard	replit.dev	dev
+XXXXXXXXXX.XXXXXX	CUM0KZ3MLUfNB0cl11	192.168.1.20	52554	9.9.9.9	53	udp	3576	-	example.auth.af-south-1.amazoncognito.com	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	2	-	-	F	F	example.auth.af-south-1	amazoncognito.com	com
+XXXXXXXXXX.XXXXXX	CmES5u32sYpV7JYN	192.168.1.20	51449	9.9.9.9	53	udp	52323	0.026825	corelight.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	2	199.60.103.6,199.60.103.106	6XXXXXXXXXX.XXXXXX,6XXXXXXXXXX.XXXXXX	F	F	-	corelight.com	com
+XXXXXXXXXX.XXXXXX	CP5puj4I8PtEU4qzYg	192.168.1.20	54977	9.9.9.9	53	udp	56474	0.055018	example.de	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	2	217.160.0.248	360XXXXXXXXXX.XXXXXX	F	F	-	example.de	de
+XXXXXXXXXX.XXXXXX	C37jN32gN3y3AZzyf6	192.168.1.20	63379	9.9.9.9	53	udp	58538	-	sub.example.de	1	C_INTERNET	1	A	3	NXDOMAIN	F	F	T	F	2	-	-	F	F	sub	example.de	de
 #close XXXX-XX-XX-XX-XX-XX

@@ -2,7 +2,7 @@ module icannTLD;
 
 redef record DNS::Info += {
 	## Is the domain trusted based on a list of domains created manually.
-	is_trusted_domain: string &log &optional;
+	is_trusted_domain: bool &log &optional;
 	## Based on the publicsuffix.org top level domain database, the remainder of the FQDN after the domain.
 	## This could be a hostname, or a subdomain with a hostname.
 	icann_host_subdomain: string &log &optional;
@@ -73,14 +73,13 @@ event zeek_init() &priority=10 {
 # Then use the appropriate regex pattern to extract the desired value.
 event dns_end(c: connection, msg: dns_msg) {
 	if ( c?$dns && c$dns?$query ) {
-		c$dns$is_trusted_domain = "false";
+		c$dns$is_trusted_domain = F;
 
 		# Is the query for a hostname or does it end in .local?
 		if ( effective_tld_local in c$dns$query ) {
 			c$dns$icann_tld = "local";
 			c$dns$icann_domain = "local";
-			c$dns$icann_host_subdomain = "";
-			c$dns$is_trusted_domain = "true";
+			c$dns$is_trusted_domain = T;
 			return;
 		}
 
@@ -100,20 +99,17 @@ event dns_end(c: connection, msg: dns_msg) {
 		c$dns$icann_tld = lstrip(icann_tld_raw, "\.");
 		if (c$dns$icann_tld == "in-addr.arpa") {
 			c$dns$icann_domain = "in-addr.arpa";
-			c$dns$icann_host_subdomain = "";
-			c$dns$is_trusted_domain = "true";
+			c$dns$is_trusted_domain = T;
 			return;
 		}
 
 		if (c$dns$icann_tld == c$dns$query) {
 			c$dns$icann_domain = c$dns$query;
-			c$dns$icann_host_subdomain = "";
 		}
 		else {
 			local icann_domain_raw = find_last(dot_query, extraction_regex[tld_parts +1]);
 			c$dns$icann_domain = lstrip(icann_domain_raw, "\.");
 			if (c$dns$icann_domain == c$dns$query){
-				c$dns$icann_host_subdomain = "";
 			}
 			else {
 				c$dns$icann_host_subdomain = sub(c$dns$query, extraction_regex[tld_parts +1], "");
@@ -121,7 +117,7 @@ event dns_end(c: connection, msg: dns_msg) {
 		}
 
 		if (c$dns$icann_domain in trusted_domains_set) {
-			c$dns$is_trusted_domain = "true";
+			c$dns$is_trusted_domain = T;
 		}
 	}
 }
